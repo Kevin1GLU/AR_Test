@@ -68,10 +68,13 @@
         />
         <a-asset-item 
           id="myModel" 
-          src="model.glb"
+          src="model2.glb"
           crossorigin="anonymous"
         ></a-asset-item>
       </a-assets>
+
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      <a-entity light="type: directional; intensity: 0.6" position="0 1 1"></a-entity>
 
       <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="far: 10000; objects: .clickable"></a-camera>
 
@@ -88,7 +91,7 @@
         <a-gltf-model
           rotation="0 0 0"
           position="0 0 0.1"
-          scale="0.005 0.005 0.005"
+          scale="0.00 5 0.005 0.005"
           src="#myModel"
           animation="property: position; to: 0 0.1 0.1; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate"
           animation__scale="property: scale; to: 0.006 0.006 0.006; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate"
