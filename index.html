@@ -1,166 +1,22 @@
-<!DOCTYPE html>
+
 <html>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>MindAR Image Tracking</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
-    <style>
-      body {
-        margin: 0;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        position: fixed;
-        -webkit-user-select: none;
-        user-select: none;
-      }
-
-      .loader {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-family: sans-serif;
-        font-size: 1.25em;
-      }
-
-      #error-message {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        background: rgba(255, 0, 0, 0.7);
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-        display: none;
-        z-index: 9999;
-      }
-    </style>
   </head>
   <body>
-    <div class="loader">Loading, please wait...</div>
-    <div id="error-message"></div>
-
-    <a-scene
-      mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; warmupTolerance: 5; missTolerance: 5;"
-      color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights: true; antialias: true; precision: mediump; logarithmicDepthBuffer: true;"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-      loading-screen="enabled: false"
-    >
-      <a-assets timeout="30000">
-        <img 
-          id="card" 
-          src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png"
-          crossorigin="anonymous"
-        />
-        <a-asset-item 
-          id="myModel" 
-          src="model2.glb"
-          crossorigin="anonymous"
-        ></a-asset-item>
+    <a-scene mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      <a-assets>
+        <img id="card" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" />
+        <a-asset-item id="avatarModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/softmind/scene.gltf"></a-asset-item>
       </a-assets>
 
-      <a-entity light="type: ambient; intensity: 1"></a-entity>
-      <a-entity light="type: directional; intensity: 0.6" position="0 1 1"></a-entity>
-
-      <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="far: 10000; objects: .clickable"></a-camera>
-
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-plane 
-          src="#card" 
-          position="0 0 0" 
-          height="0.552" 
-          width="1" 
-          rotation="0 0 0"
-          class="clickable"
-        ></a-plane>
-
-        <a-gltf-model
-          rotation="0 0 0"
-          position="0 0 0.1"
-          scale="0.00 5 0.005 0.005"
-          src="#myModel"
-          animation="property: position; to: 0 0.1 0.1; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate"
-          animation__scale="property: scale; to: 0.006 0.006 0.006; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate"
-          class="clickable"
-        ></a-gltf-model>
+        <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
+        <a-gltf-model rotation="0 0 0 " position="0 0 0.1" scale="0.005 0.005 0.005" src="#avatarModel" animation="property: position; to: 0 0.1 0.1; dur: 1000; easing: easeInOutQuad; loop: true; dir: alternate">
       </a-entity>
     </a-scene>
-
-    <script>
-      // iOS specific setup
-      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-        window.addEventListener('load', () => {
-          document.documentElement.style.height = '100%';
-          document.body.style.height = '100%';
-          document.documentElement.style.position = 'fixed';
-        });
-      }
-
-      const sceneEl = document.querySelector('a-scene');
-      const loader = document.querySelector('.loader');
-      const errorMessage = document.getElementById('error-message');
-      const arSystem = sceneEl.systems["mindar-image-system"];
-      const model = document.querySelector('a-gltf-model');
-
-      // Handle model loading errors
-      model.addEventListener('model-error', (error) => {
-        console.error('Model failed to load:', error);
-        errorMessage.textContent = 'Failed to load 3D model';
-        errorMessage.style.display = 'block';
-      });
-
-      // Handle model loading success
-      model.addEventListener('model-loaded', () => {
-        console.log('Model loaded successfully');
-        errorMessage.style.display = 'none';
-      });
-
-      // Handle loading states
-      sceneEl.addEventListener('renderstart', () => {
-        loader.style.display = 'none';
-      });
-
-      // Handle asset loading timeout
-      document.querySelector('a-assets').addEventListener('timeout', () => {
-        console.error('Asset loading timeout');
-        errorMessage.textContent = 'Asset loading timeout - check model URL';
-        errorMessage.style.display = 'block';
-      });
-
-      // Handle target finding
-      sceneEl.addEventListener('targetFound', event => {
-        console.log("target found");
-      });
-
-      // Handle target losing
-      sceneEl.addEventListener('targetLost', event => {
-        console.log("target lost");
-      });
-
-      // Handle click events
-      model.addEventListener('click', () => {
-        console.log('model clicked');
-      });
-
-      // Stop AR when page is unloaded
-      window.addEventListener('beforeunload', () => {
-        arSystem.stop();
-      });
-    </script>
   </body>
 </html>
